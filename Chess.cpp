@@ -135,26 +135,35 @@ private:
     }
     bool AreSquaresLegal(int srcRow, int srcCol, int destRow, int destCol, GamePiece *gameBoard[8][8])
     {
-        if ((destCol - srcCol == destRow - srcRow) || (destCol - srcCol == srcRow - destRow))
+      // Check if the move is diagonal
+      if ((destCol - srcCol == destRow - srcRow) || (destCol - srcCol == srcRow - destRow))
+      {
+        // Make sure all intervening squares are empty
+        int rowOffset = (destRow - srcRow > 0) ? 1 : -1;
+        int colOffset = (destCol - srcCol > 0) ? 1 : -1;
+        int checkRow;
+        int checkCol;
+        for (checkRow = srcRow + rowOffset, checkCol = srcCol + colOffset;
+             checkRow != destRow;
+             checkRow = checkRow + rowOffset, checkCol = checkCol + colOffset)
         {
-            // Make sure that all intervening squares are empty
-            int rowOffset = (destRow - srcRow > 0) ? 1 : -1;
-            int colOffset = (destCol - srcCol > 0) ? 1 : -1;
-            int checkRow;
-            int checkCol;
-            for (checkRow = srcRow + rowOffset, checkCol = srcCol + colOffset;
-                 checkRow != destRow;
-                 checkRow = checkRow + rowOffset, checkCol = checkCol + colOffset)
+            if (gameBoard[checkRow][checkCol] != nullptr)
             {
-                if (gameBoard[checkRow][checkCol] != 0)
-                {
-                    return false;
-                }
+                return false;
             }
+        }
+
+        // Check if the destination square is empty or occupied by an opponent's piece
+        GamePiece* destPiece = gameBoard[destRow][destCol];
+        if (destPiece == nullptr || destPiece->GetColor() != this->GetColor())
+        {
             return true;
         }
-        return false;
-    }
+      }
+
+    // If the move is not diagonal or another condition failed, return false
+    return false;
+   }
 };
 
 class RookPiece : public GamePiece
