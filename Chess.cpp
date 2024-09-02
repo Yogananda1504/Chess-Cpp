@@ -99,23 +99,26 @@ private:
         return 'N';
     }
     bool AreSquaresLegal(int srcRow, int srcCol, int destRow, int destCol, GamePiece *gameBoard[8][8])
+   {
+    GamePiece *destPiece = gameBoard[destRow][destCol];
+    
+    // Knight moves in an L-shape: Check both movement conditions
+    bool isLShape =
+        ((abs(srcCol - destCol) == 1) && (abs(srcRow - destRow) == 2)) ||
+        ((abs(srcCol - destCol) == 2) && (abs(srcRow - destRow) == 1));
+
+    if (!isLShape)
     {
-        // Destination square is unoccupied or occupied by opposite color
-        if ((srcCol == destCol + 1) || (srcCol == destCol - 1))
-        {
-            if ((srcRow == destRow + 2) || (srcRow == destRow - 2))
-            {
-                return true;
-            }
-        }
-        if ((srcCol == destCol + 2) || (srcCol == destCol - 2))
-        {
-            if ((srcRow == destRow + 1) || (srcRow == destRow - 1))
-            {
-                return true;
-            }
-        }
         return false;
+    }
+
+    // Check if the destination square is unoccupied or occupied by an opponent's piece
+    if (destPiece == nullptr || destPiece->GetColor() != this->GetColor())
+    {
+        return true;
+    }
+    
+    return false;
     }
 };
 
