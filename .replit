@@ -14,3 +14,7 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "g++ -o Chess.exe Chess.cpp && node server.js"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
