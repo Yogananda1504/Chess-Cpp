@@ -517,6 +517,9 @@ public:
 
     void Start()
     {
+        // Print the board initially before any moves
+        cout << "=== Initial Board Position ===" << endl;
+        gameBoard.Print();
         do
         {
             GetNextMove(gameBoard.mainGameBoard);
@@ -528,32 +531,29 @@ public:
     void GetNextMove(GamePiece *gameBoard[8][8])
     {
         bool validMove = false;
-        do
-        {
-            // Only show instructions on first move
-            if (moveCount == 0) {
-                cout << endl
-                     << "          Welcome to Chess Game" << endl
-                     << endl;
-                cout << "Keys to symbols used:" << endl;
-                cout << " * = white space, Blank = black space" << endl;
-                cout << " WP/BP = White/Black pawn, WN/BN = White/Black Knight" << endl;
-                cout << " WB/BB = White/Black Bishop, WR/BR = White/Black Rook" << endl;
-                cout << " WQ/BQ = White/Black Queen, WK/BK = White/Black King" << endl;
-                cout << "Enter moves as: row+column (e.g., 21 to 31)" << endl
-                     << endl;
-            }
-            
-            // Clear screen and show current board state
-            #ifdef _WIN32
-                system("cls");
-            #else
-                system("clear");
-            #endif
-            
-            cout << "=== Current Board Position ===" << endl;
-            this->gameBoard.Print();
-            
+        // Only show instructions on first move
+        if (moveCount == 0) {
+            cout << endl
+                 << "          Welcome to Chess Game" << endl
+                 << endl;
+            cout << "Keys to symbols used:" << endl;
+            cout << " * = white space, Blank = black space" << endl;
+            cout << " WP/BP = White/Black pawn, WN/BN = White/Black Knight" << endl;
+            cout << " WB/BB = White/Black Bishop, WR/BR = White/Black Rook" << endl;
+            cout << " WQ/BQ = White/Black Queen, WK/BK = White/Black King" << endl;
+            cout << "Enter moves as: row+column (e.g., 21 to 31)" << endl
+                 << endl;
+        }
+        do {
+            // Clear screen
+            // #ifdef _WIN32
+            //     system("cls");
+            // #else
+            //     system("clear");
+            // #endif
+
+            cout << "\n" << playerTurn << "'s turn (Move #" << (moveCount + 1) << ")" << endl;
+
             // Show recent move history
             if (!moveHistory.empty()) {
                 cout << "\n=== Recent Moves ===" << endl;
@@ -562,8 +562,6 @@ public:
                     cout << moveHistory[i] << endl;
                 }
             }
-            
-            cout << "\n" << playerTurn << "'s turn (Move #" << (moveCount + 1) << ")" << endl;
 
             // Get input and convert to coordinates
             cout << "Enter move (from): ";
@@ -602,7 +600,7 @@ public:
                         {
                             delete tempPiece;
                             validMove = true;
-                            
+
                             // Record the move
                             moveCount++;
                             string moveStr = "";
@@ -639,6 +637,10 @@ public:
                 cin.get();
             }
         } while (!validMove);
+
+        // Print the board only once after a valid move
+        cout << "=== Current Board Position ===" << endl;
+        this->gameBoard.Print();
     }
 
     void AlternateTurn()
