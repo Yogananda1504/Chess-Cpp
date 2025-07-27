@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            font-family: 'Courier New', monospace;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+        }
+        #terminal {
+            height: 600px;
+            background-color: #000;
+        }
+        .instructions {
+            color: #ccc;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chess Game Terminal</h1>
+        <div class="instructions">
+            <p>This is a terminal-based chess game. Use the interface below to play:</p>
+            <ul>
+                <li>Enter moves as two numbers: source position (row+column) then destination (row+column)</li>
+                <li>Example: "11" (row 1, col 1) to "31" (row 3, col 1)</li>
+                <li>White pieces start at the bottom, Black pieces at the top</li>
+            </ul>
+        </div>
+        <div id="terminal"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const terminal = new Terminal({
+            cursorBlink: true,
+            fontSize: 14,
+            fontFamily: 'Courier New, monospace',
+            theme: {
+                background: '#000000',
+                foreground: '#ffffff'
+            }
+        });
+        
+        terminal.open(document.getElementById('terminal'));
+        
+        const socket = io();
+        
+        socket.on('output', (data) => {
+            terminal.write(data);
+        });
+        
+        terminal.onData((data) => {
+            socket.emit('input', data);
+        });
+        
+        socket.on('connect', () => {
+            terminal.writeln('Connected to Chess Game!');
+        });
+        
+        socket.on('disconnect', () => {
+            terminal.writeln('\r\nDisconnected from server');
+        });
+    </script>
+</body>
+</html>

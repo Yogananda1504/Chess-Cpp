@@ -1,4 +1,16 @@
-modules = ["cpp-clang14"]
+modules = ["cpp-clang14", "nodejs-20"]
 
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Run Chess Web Terminal"
+
+[[workflows.workflow]]
+name = "Run Chess Web Terminal"
+author = 16063922
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "g++ -o Chess.exe Chess.cpp && node server.js"
