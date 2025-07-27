@@ -544,8 +544,14 @@ public:
                      << endl;
             }
             
-            // Show current board state
-            cout << "\n=== Current Board Position ===" << endl;
+            // Clear screen and show current board state
+            #ifdef _WIN32
+                system("cls");
+            #else
+                system("clear");
+            #endif
+            
+            cout << "=== Current Board Position ===" << endl;
             this->gameBoard.Print();
             
             // Show recent move history
