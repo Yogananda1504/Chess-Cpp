@@ -41,6 +41,22 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+// Handle process termination gracefully
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM, shutting down gracefully');
+  server.close(() => {
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('Received SIGINT, shutting down gracefully');
+  server.close(() => {
+    process.exit(0);
+  });
+});
+
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

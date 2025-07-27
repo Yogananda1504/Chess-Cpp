@@ -1,5 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
+#include <vector>
+#include <string>
 using namespace std;
 
 class GamePiece
@@ -510,7 +512,7 @@ public:
 class ChessGame
 {
 public:
-    ChessGame() : playerTurn('W') {}
+    ChessGame() : playerTurn('W'), moveCount(0) {}
     ~ChessGame() {}
 
     void Start()
@@ -528,37 +530,43 @@ public:
         bool validMove = false;
         do
         {
-            system("clear");
-            cout << endl
-                 << endl
-                 << "          Welcome to Chess Game" << endl
-                 << endl
-                 << endl;
-            cout << "                      Keys to symbols used " << endl
-                 << endl
-                 << endl;
-            cout << " * = white space" << endl;
-            cout << " Blank space = black space" << endl;
-            cout << " WP = White pawn &  BP = Black pawn" << endl;
-            cout << " WN = White Knight & BN = Black Knight" << endl;
-            cout << " WB = White Bishop & BB = Black Bishop" << endl;
-            cout << " WR = White Rook & BR = Black Rook" << endl;
-            cout << " WQ = White Queen & BQ = Black Queen" << endl;
-            cout << " WK = White King & BK =Black King" << endl;
-            cout << "Rule for move is :" << endl;
-            cout << "Move by selecting row & column to another valid location using row & column" << endl
-                 << endl
-                 << endl;
+            // Only show instructions on first move
+            if (moveCount == 0) {
+                cout << endl
+                     << "          Welcome to Chess Game" << endl
+                     << endl;
+                cout << "Keys to symbols used:" << endl;
+                cout << " * = white space, Blank = black space" << endl;
+                cout << " WP/BP = White/Black pawn, WN/BN = White/Black Knight" << endl;
+                cout << " WB/BB = White/Black Bishop, WR/BR = White/Black Rook" << endl;
+                cout << " WQ/BQ = White/Black Queen, WK/BK = White/Black King" << endl;
+                cout << "Enter moves as: row+column (e.g., 21 to 31)" << endl
+                     << endl;
+            }
+            
+            // Show current board state
+            cout << "\n=== Current Board Position ===" << endl;
             this->gameBoard.Print();
+            
+            // Show recent move history
+            if (!moveHistory.empty()) {
+                cout << "\n=== Recent Moves ===" << endl;
+                int startIdx = (moveHistory.size() > 5) ? moveHistory.size() - 5 : 0;
+                for (int i = startIdx; i < moveHistory.size(); i++) {
+                    cout << moveHistory[i] << endl;
+                }
+            }
+            
+            cout << "\n" << playerTurn << "'s turn (Move #" << (moveCount + 1) << ")" << endl;
 
             // Get input and convert to coordinates
-            cout << playerTurn << "'s Move: ";
+            cout << "Enter move (from): ";
             int startMove;
             cin >> startMove;
             int startRow = (startMove / 10) - 1;
             int startCol = (startMove % 10) - 1;
 
-            cout << "To: ";
+            cout << "Enter move (to): ";
             int endMove;
             cin >> endMove;
             int endRow = (endMove / 10) - 1;
@@ -588,18 +596,41 @@ public:
                         {
                             delete tempPiece;
                             validMove = true;
+                            
+                            // Record the move
+                            moveCount++;
+                            string moveStr = "";
+                            moveStr += to_string(moveCount) + ". ";
+                            moveStr += playerTurn;
+                            moveStr += currentPiece->GetPiece();
+                            moveStr += " ";
+                            moveStr += to_string(startMove);
+                            moveStr += " -> ";
+                            moveStr += to_string(endMove);
+                            if (tempPiece != 0) {
+                                moveStr += " (captured " + string(1, tempPiece->GetColor()) + string(1, tempPiece->GetPiece()) + ")";
+                            }
+                            moveHistory.push_back(moveStr);
                         }
                         else
                         { // Undo the last move
                             gameBoard[startRow][startCol] = gameBoard[endRow][endCol];
                             gameBoard[endRow][endCol] = tempPiece;
+                            cout << "Invalid move: would put your king in check!" << endl;
                         }
                     }
                 }
             }
             if (!validMove)
             {
-                cout << "Invalid Move!" << endl;
+                cout << "Invalid move! Please check:" << endl;
+                cout << "- Coordinates are within 11-88 range" << endl;
+                cout << "- You're moving your own piece" << endl;
+                cout << "- The move follows piece rules" << endl;
+                cout << "- Move doesn't put you in check" << endl;
+                cout << "Press Enter to continue...";
+                cin.ignore();
+                cin.get();
             }
         } while (!validMove);
     }
@@ -632,6 +663,8 @@ public:
 private:
     ChessBoard gameBoard;
     char playerTurn;
+    int moveCount;
+    vector<string> moveHistory;
 };
 
 int main()
