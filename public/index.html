@@ -1,84 +1,137 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <title>Chess Game</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css" />
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #1e1e1e;
-            font-family: 'Courier New', monospace;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: white;
-            text-align: center;
-        }
-        #terminal {
-            height: 800px;
-            background-color: #000;
-            border: 1px solid #333;
-        }
-        .instructions {
-            color: #ccc;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #333;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Chess Game Terminal</h1>
-        <div class="instructions">
-            <p>This is a terminal-based chess game. Use the interface below to play:</p>
-            <ul>
-                <li>Enter moves as two numbers: source position (row+column) then destination (row+column)</li>
-                <li>Example: "11" (row 1, col 1) to "31" (row 3, col 1)</li>
-                <li>White pieces start at the bottom, Black pieces at the top</li>
-            </ul>
-        </div>
-        <div id="terminal"></div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const terminal = new Terminal({
-            cursorBlink: true,
-            fontSize: 14,
-            fontFamily: 'Courier New, monospace',
-            theme: {
-                background: '#000000',
-                foreground: '#ffffff'
+    <head>
+        <title>Chess Game</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/xterm@4.19.0/css/xterm.css"
+        />
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-        });
-        
-        terminal.open(document.getElementById('terminal'));
-        
-        const socket = io();
-        
-        socket.on('output', (data) => {
-            terminal.write(data);
-        });
-        
-        terminal.onData((data) => {
-            socket.emit('input', data);
-        });
-        
-        socket.on('connect', () => {
-            terminal.writeln('Connected to Chess Game!');
-        });
-        
-        socket.on('disconnect', () => {
-            terminal.writeln('\r\nDisconnected from server');
-        });
-    </script>
-</body>
+
+            html,
+            body {
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+                background-color: #1e1e1e;
+                font-family: "Courier New", monospace;
+            }
+
+            .container {
+                height: 100vh;
+                width: 100vw;
+                display: flex;
+                flex-direction: column;
+            }
+
+            h1 {
+                color: white;
+                text-align: center;
+                padding: 10px 0;
+                background-color: #333;
+                font-size: 1.5rem;
+                flex-shrink: 0;
+            }
+
+            #terminal {
+                flex: 1;
+                background-color: #000;
+                border: none;
+                width: 100%;
+            }
+
+            .instructions {
+                color: #ccc;
+                padding: 10px;
+                background-color: #333;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+                border-bottom: 1px solid #555;
+            }
+
+            .instructions ul {
+                margin-left: 20px;
+                margin-top: 5px;
+            }
+
+            .instructions li {
+                margin-bottom: 3px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Chess Game Terminal</h1>
+            <div class="instructions">
+                <strong>Controls:</strong> Enter moves as two numbers: source
+                position (row+column) then destination (row+column) | Example:
+                "11" to "31" | White pieces start at bottom, Black at top
+            </div>
+            <div id="terminal"></div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/xterm@4.19.0/lib/xterm.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            // Calculate terminal dimensions based on screen size
+            function calculateTerminalSize() {
+                const container = document.getElementById("terminal");
+                const containerRect = container.getBoundingClientRect();
+
+                // Approximate character dimensions for Courier New
+                const charWidth = 8.4; // Average width of a character
+                const charHeight = 17; // Height including line spacing
+
+                const cols = Math.floor(containerRect.width / charWidth);
+                const rows = Math.floor(containerRect.height / charHeight);
+
+                return { cols, rows };
+            }
+
+            const { cols, rows } = calculateTerminalSize();
+
+            const terminal = new Terminal({
+                cursorBlink: true,
+                fontSize: 14,
+                fontFamily: "Courier New, monospace",
+                theme: {
+                    background: "#000000",
+                    foreground: "#ffffff",
+                },
+                cols: cols,
+                rows: rows,
+            });
+
+            terminal.open(document.getElementById("terminal"));
+
+            // Resize terminal when window is resized
+            window.addEventListener("resize", () => {
+                const newSize = calculateTerminalSize();
+                terminal.resize(newSize.cols, newSize.rows);
+            });
+
+            const socket = io();
+
+            socket.on("output", (data) => {
+                terminal.write(data);
+            });
+
+            terminal.onData((data) => {
+                socket.emit("input", data);
+            });
+
+            socket.on("connect", () => {
+                terminal.writeln("Connected to Chess Game!");
+                terminal.writeln("Terminal size: " + cols + "x" + rows);
+            });
+
+            socket.on("disconnect", () => {
+                terminal.writeln("\r\nDisconnected from server");
+            });
+        </script>
+    </body>
 </html>
